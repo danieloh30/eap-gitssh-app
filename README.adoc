@@ -34,3 +34,6 @@ WFLYJCA0091: -ds.xml file deployments are deprecated. Support may be removed in 
 HHH000431: Unable to determine H2 database version, certain features may not work
 ----
 
+== Open the project via CodeReady Workspaces on Developer Sandbox
+
+https://workspaces.openshift.com/f?url=https://github.com/danieloh30/eap-gitssh-app
