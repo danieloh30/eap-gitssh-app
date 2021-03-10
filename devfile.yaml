@@ -8,7 +8,7 @@ projects:
       type: git
       branch: main
 components:
-  - id: redhat/java8/latest
+  - id: redhat/java11/latest
     type: chePlugin
   - id: redhat/dependency-analytics/latest
     type: chePlugin
