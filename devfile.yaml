@@ -48,11 +48,11 @@ commands:
         type: exec
         command: 'mkdir /opt/eap/standalone/deployments && cp target/*.war /opt/eap/standalone/deployments/ROOT.war && echo ''Archive was deployed, click on eap endpoint from Workspace view to open the application'''
         component: eap-74-beta
-  - name: 3. Hot update
+  - name: 3. Hot Deploy
     actions:
       - workdir: '${CHE_PROJECTS_ROOT}/kitchensink-example'
         type: exec
-        command: mvn clean install && sleep 2 && cp target/*.war /opt/eap/standalone/deployments/ROOT.war
+        command: mvn clean install && sleep 2 && mkdir /opt/eap/standalone/deployments && cp target/*.war /opt/eap/standalone/deployments/ROOT.war
         component: eap-74-beta
   - name: Debug (Attach)
     actions:
