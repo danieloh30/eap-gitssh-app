@@ -21,15 +21,16 @@ components:
     args:
       - '-b'
       - 0.0.0.0
-      - '--git-repo=https://github.com/danieloh30/eap-gitssh-config.git'
+      - '--git-repo=git@github.com:danieloh30/eap-gitssh-config.git'
       - '--git-branch=main'
+      - '--git-auth=https://raw.githubusercontent.com/danieloh30/eap-gitssh-demo/main/wildfly-config.xml'
     memoryLimit: 1024Mi
     type: dockerimage
     volumes:
       - name: m2
         containerPath: /home/jboss/.m2
     alias: eap-74-beta
-    image: 'quay.io/danieloh30/jboss-eap-7-tech-preview-eap74-openjdk11-openshift-rhel8:7.4.0.Beta-4'
+    image: 'quay.io/danieloh30/jboss-eap-7-tech-preview-eap74-openjdk11-openshift-rhel8:7.4.0.Beta-9'
     env:
       - value: '-Xmx200m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss'
         name: MAVEN_OPTS
