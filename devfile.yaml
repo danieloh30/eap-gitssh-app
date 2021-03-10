@@ -42,19 +42,13 @@ commands:
         type: exec
         command: mvn clean install
         component: eap-74-beta
-  - name: 2. Configure web server
-    actions:
-      - workdir: /opt/eap/bin
-        type: exec
-        command: './jboss-cli.sh --connect --command="data-source add --name=ExampleDS --jndi-name=java:jboss/datasources/ExampleDS --driver-name=h2 --connection-url=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE --user-name=sa --password=sa" && echo ''Server was configured'''
-        component: eap-74-beta
-  - name: 3. Copy war
+  - name: 2. Copy war
     actions:
       - workdir: '${CHE_PROJECTS_ROOT}/kitchensink-example'
         type: exec
         command: 'mkdir /opt/eap/standalone/deployments && cp target/*.war /opt/eap/standalone/deployments/ROOT.war && echo ''Archive was deployed, click on eap endpoint from Workspace view to open the application'''
         component: eap-74-beta
-  - name: 4. Hot update
+  - name: 3. Hot update
     actions:
       - workdir: '${CHE_PROJECTS_ROOT}/kitchensink-example'
         type: exec
