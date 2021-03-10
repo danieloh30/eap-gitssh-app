@@ -1,0 +1,78 @@
+apiVersion: 1.0.0
+metadata:
+  name: java-eap-maven
+projects:
+  - name: kitchensink-example
+    source:
+      location: 'https://github.com/danieloh30/eap-gitssh-app'
+      type: git
+      branch: main
+components:
+  - id: redhat/java8/latest
+    type: chePlugin
+  - id: redhat/dependency-analytics/latest
+    type: chePlugin
+  - mountSources: true
+    endpoints:
+      - name: eap
+        port: 8080
+    command:
+      - /opt/eap/bin/standalone.sh
+    args:
+      - '-b'
+      - 0.0.0.0
+      - '--git-repo=https://github.com/danieloh30/eap-gitssh-config.git'
+      - '--git-branch=main'
+    memoryLimit: 1024Mi
+    type: dockerimage
+    volumes:
+      - name: m2
+        containerPath: /home/jboss/.m2
+    alias: eap-74-beta
+    image: 'quay.io/danieloh30/jboss-eap-7-tech-preview-eap74-openjdk11-openshift-rhel8:7.4.0.Beta-4'
+    env:
+      - value: '-Xmx200m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss'
+        name: MAVEN_OPTS
+      - value: '-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dsun.util.logging.disableCallerCheck=true'
+        name: JAVA_OPTS_APPEND
+commands:
+  - name: 1. Build
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/kitchensink-example'
+        type: exec
+        command: mvn clean install
+        component: eap-74-beta
+  - name: 2. Configure web server
+    actions:
+      - workdir: /opt/eap/bin
+        type: exec
+        command: './jboss-cli.sh --connect --command="data-source add --name=ExampleDS --jndi-name=java:jboss/datasources/ExampleDS --driver-name=h2 --connection-url=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE --user-name=sa --password=sa" && echo ''Server was configured'''
+        component: eap-74-beta
+  - name: 3. Copy war
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/kitchensink-example'
+        type: exec
+        command: 'mkdir /opt/eap/standalone/deployments && cp target/*.war /opt/eap/standalone/deployments/ROOT.war && echo ''Archive was deployed, click on eap endpoint from Workspace view to open the application'''
+        component: eap-74-beta
+  - name: 4. Hot update
+    actions:
+      - workdir: '${CHE_PROJECTS_ROOT}/kitchensink-example'
+        type: exec
+        command: mvn clean install && sleep 2 && cp target/*.war /opt/eap/standalone/deployments/ROOT.war
+        component: eap-74-beta
+  - name: Debug (Attach)
+    actions:
+      - referenceContent: |
+          {
+          "version": "0.2.0",
+          "configurations": [
+          {
+              "type": "java",
+              "request": "attach",
+              "name": "Debug (Attach)",
+              "hostName": "localhost",
+              "port": 8000
+          }
+          ]
+          }
+        type: vscode-launch
